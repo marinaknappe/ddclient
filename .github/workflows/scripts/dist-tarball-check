@@ -19,6 +19,8 @@ dist_tarball=$(ls ddclient-*.tar.gz) \
     || fatal "'make dist' must be run before this test"
 
 tmpdir=$(try mktemp -d) || exit 1
+# newer git versions are particular about file ownership which can be ignored here
+git config --global --add safe.directory /__w/ddclient/ddclient || true
 
 log "Copying contents of Git repository..."
 try git archive --format=tar --prefix=git-repo/ HEAD \
@@ -28,9 +30,12 @@ try git archive --format=tar --prefix=git-repo/ HEAD \
     # Delete files checked into Git that shouldn't be in the distribution
     # tarball.
     try rm -rf \
+        .envrc \
         .github \
         .gitignore \
         docs/ipv6-design-doc.md \
+        docs/ProviderGuidelines.md \
+        shell.nix \
         ;
     # TODO: Delete this next line once support for Automake 1.11 is dropped and
     # tap-driver.sh is removed from the Git repository. It is deleted here to

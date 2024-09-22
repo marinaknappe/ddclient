@@ -6,21 +6,12 @@ EXTRA_DIST = \
 	ChangeLog.md \
 	README.cisco \
 	README.md \
-	README.ssl \
-	TODO \
-	UPGRADE \
 	autogen \
 	sample-ddclient-wrapper.sh \
 	sample-etc_cron.d_ddclient \
 	sample-etc_dhclient-exit-hooks \
 	sample-etc_dhcpc_dhcpcd-eth0.exe \
 	sample-etc_ppp_ip-up.local \
-	sample-etc_rc.d_ddclient.freebsd \
-	sample-etc_rc.d_init.d_ddclient \
-	sample-etc_rc.d_init.d_ddclient.alpine \
-	sample-etc_rc.d_init.d_ddclient.lsb \
-	sample-etc_rc.d_init.d_ddclient.redhat \
-	sample-etc_rc.d_init.d_ddclient.ubuntu \
 	sample-etc_systemd.service \
 	sample-get-ip-from-fritzbox
 CLEANFILES =
@@ -71,18 +62,35 @@ AM_PL_LOG_FLAGS = -Mstrict -w \
 	-I'$(abs_top_srcdir)'/t/lib \
 	-MDevel::Autoflush
 handwritten_tests = \
+	t/builtinfw_query.pl \
+	t/check_value.pl \
 	t/get_ip_from_if.pl \
-	t/geturl_ssl.pl \
+	t/geturl_connectivity.pl \
+	t/geturl_response.pl \
+	t/group_hosts_by.pl \
+	t/header_ok.pl \
+	t/interval_expired.pl \
 	t/is-and-extract-ipv4.pl \
 	t/is-and-extract-ipv6.pl \
 	t/is-and-extract-ipv6-global.pl \
+	t/logmsg.pl \
 	t/parse_assignments.pl \
-	t/write_cache.pl
+	t/protocol_directnic.pl \
+	t/protocol_dnsexit2.pl \
+	t/protocol_dyndns2.pl \
+	t/read_recap.pl \
+	t/skip.pl \
+	t/ssl-validate.pl \
+	t/update_nics.pl \
+	t/use_web.pl \
+	t/variable_defaults.pl \
+	t/write_recap.pl
 generated_tests = \
-	t/geturl_connectivity.pl \
 	t/version.pl
 TESTS = $(handwritten_tests) $(generated_tests)
+$(TESTS): ddclient
 EXTRA_DIST += $(handwritten_tests) \
+	.autom4te.cfg \
 	t/lib/Devel/Autoflush.pm \
 	t/lib/Test/Builder.pm \
 	t/lib/Test/Builder/Formatter.pm \
@@ -154,4 +162,6 @@ EXTRA_DIST += $(handwritten_tests) \
 	t/lib/ddclient/Test/Fake/HTTPD/dummy-server-cert.pem \
 	t/lib/ddclient/Test/Fake/HTTPD/dummy-server-key.pem \
 	t/lib/ddclient/t.pm \
+	t/lib/ddclient/t/HTTPD.pm \
+	t/lib/ddclient/t/ip.pm \
 	t/lib/ok.pm

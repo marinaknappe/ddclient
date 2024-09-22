@@ -1,5 +1,14 @@
 AC_PREREQ([2.63])
-AC_INIT([ddclient], [3.9.1])
+# Get the version from ddclient.in so that the same version string
+# doesn't have to be maintained in two places.  The m4_dquote macro is
+# used instead of quote characters to ensure that the command is only
+# run once.  The command outputs quote characters to prevent
+# incidental expansion (the m4_esyscmd macro does not quote the
+# command output itself, so the command output is subject to
+# expansion).
+AC_INIT([ddclient], m4_dquote(m4_esyscmd([printf '[%s]' "$(./ddclient.in --version=short)"])))
+# Needed because of the above invocation of ddclient.in.
+AC_SUBST([CONFIGURE_DEPENDENCIES], ['$(top_srcdir)/ddclient.in'])
 AC_CONFIG_SRCDIR([ddclient.in])
 AC_CONFIG_AUX_DIR([build-aux])
 AC_CONFIG_MACRO_DIR([m4])
@@ -27,7 +36,19 @@ AC_PROG_MKDIR_P
 AC_PATH_PROG([FIND], [find])
 AS_IF([test -z "${FIND}"], [AC_MSG_ERROR(['find' utility not found])])
 
-AC_PATH_PROG([CURL], [curl])
+AC_ARG_WITH([curl],
+  [AS_HELP_STRING([[--with-curl[=CURL]]], [use CURL as absolute path to curl executable])],
+  [],
+  [with_curl=yes])
+AS_CASE([${with_curl}],
+  [[yes]], [AC_PATH_PROG([CURL], [curl])],
+  [[no]], [CURL=],
+  [
+    AC_MSG_CHECKING([for curl])
+    CURL=${with_curl}
+    AC_MSG_RESULT([${CURL}])
+  ]);
+AS_IF([test -z "${CURL}"], [AC_MSG_ERROR([curl not found])])
 
 AX_WITH_PROG([PERL], perl)
 AX_PROG_PERL_VERSION([5.10.1], [],
@@ -39,11 +60,11 @@ AC_SUBST([PERL])
 # package doesn't depend on all of them, so their availability can't
 # be assumed.
 m4_foreach_w([_m], [
+    Data::Dumper
     File::Basename
     File::Path
     File::Temp
     Getopt::Long
-    IO::Socket::INET
     Socket
     Sys::Hostname
     version=0.77
@@ -54,9 +75,11 @@ m4_foreach_w([_m], [
 # then some tests will fail. Only prints a warning if not installed.
 m4_foreach_w([_m], [
     B
-    Data::Dumper
     File::Spec::Functions
     File::Temp
+    List::Util
+    Scalar::Util
+    re
   ], [AX_PROG_PERL_MODULES([_m], [],
          [AC_MSG_WARN([some tests will fail due to missing module _m])])])
 
@@ -71,10 +94,7 @@ m4_foreach_w([_m], [
     HTTP::Message::PSGI
     HTTP::Request
     HTTP::Response
-    IO::Socket::INET6
-    IO::Socket::IP
-    IO::Socket::SSL
-    Scalar::Util
+    JSON::PP
     Test::MockModule
     Test::TCP
     Test::Warnings
@@ -85,7 +105,6 @@ m4_foreach_w([_m], [
 
 AC_CONFIG_FILES([
     Makefile
-    t/geturl_connectivity.pl
     t/version.pl
   ])
 AC_OUTPUT

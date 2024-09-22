@@ -3,10 +3,250 @@
 This document describes notable changes. For details, see the [source code
 repository history](https://github.com/ddclient/ddclient/commits/master).
 
-## Not yet released
+## v4.0.0~alpha (unreleased work-in-progress)
+
+### Breaking changes
+
+  * The `--ssl` option is now enabled by default.
+    [#705](https://github.com/ddclient/ddclient/pull/705)
+  * Unencrypted (plain) HTTP is now used instead of encrypted (TLS) HTTP if the
+    URL uses `http://` instead of `https://`, even if the `--ssl` option is
+    enabled.  [#608](https://github.com/ddclient/ddclient/pull/608)
+  * The default web service for `--webv4` and `--webv6` has changed from Google
+    Domains (which has shut down) to ipify.
+    [5b104ad1](https://github.com/ddclient/ddclient/commit/5b104ad116c023c3760129cab6e141f04f72b406)
+  * Invalid command-line options or values are now fatal errors (instead of
+    discarded with a warning).
+    [#733](https://github.com/ddclient/ddclient/pull/733)
+  * All log messages are now written to STDERR, not a mix of STDOUT and STDERR.
+    [#676](https://github.com/ddclient/ddclient/pull/676)
+  * For `--protocol=freedns` and `--protocol=nfsn`, the core module
+    `Digest::SHA` is now required.  Previously, `Digest::SHA1` was used (if
+    available) as an alternative to `Digest::SHA`.
+    [#685](https://github.com/ddclient/ddclient/pull/685)
+  * The `he` built-in web IP discovery service (`--webv4=he`, `--webv6=he`, and
+    `--web=he`) was renamed to `he.net` for consistency with the new `he.net`
+    protocol.  The old name is still accepted but is deprecated and will be
+    removed in a future version of ddclient.
+    [#682](https://github.com/ddclient/ddclient/pull/682)
+  * Deprecated built-in web IP discovery services are not listed in the output
+    of `--list-web-services`.
+    [#682](https://github.com/ddclient/ddclient/pull/682)
+  * `dyndns2`: Support for "wait" response lines has been removed.  The Dyn
+    documentation does not mention such responses, and the code to handle them,
+    untouched since at least 2006, is believed to be obsolete.
+    [#709](https://github.com/ddclient/ddclient/pull/709)
+  * `dyndns2`: The obsolete `static` and `custom` options have been removed.
+    Setting the options may produce a warning.
+    [#709](https://github.com/ddclient/ddclient/pull/709)
+  * The diagnostic `--geturl` command-line argument was removed.
+    [#712](https://github.com/ddclient/ddclient/pull/712)
+  * `easydns`: The default value for `min-interval` was increased from 5m to 10m
+    to match easyDNS documentation.
+    [#713](https://github.com/ddclient/ddclient/pull/713)
+  * `woima`: The dyn.woima.fi service appears to be defunct so support was
+    removed.  [#716](https://github.com/ddclient/ddclient/pull/716)
+  * `googledomains`: Support was removed because the service shut down.
+    [#716](https://github.com/ddclient/ddclient/pull/716)
+  * The `--retry` option was removed.
+    [#732](https://github.com/ddclient/ddclient/pull/732)
 
 ### New features
 
+  * Simultaneous/separate updating of IPv4 (A) records and IPv6 (AAAA) records
+    is now supported in the following services: `gandi`
+    ([#558](https://github.com/ddclient/ddclient/pull/558)), `nsupdate`
+    ([#604](https://github.com/ddclient/ddclient/pull/604)), `noip`
+    ([#603](https://github.com/ddclient/ddclient/pull/603)), `mythicdyn`
+    ([#616](https://github.com/ddclient/ddclient/pull/616)), `godaddy`
+    ([#560](https://github.com/ddclient/ddclient/pull/560)).
+  * `porkbun`: Added support for subdomains.
+    [#624](https://github.com/ddclient/ddclient/pull/624)
+  * `gandi`: Added support for personal access tokens.
+    [#636](https://github.com/ddclient/ddclient/pull/636)
+  * Comments after the `\` line continuation character are now supported.
+    [3c522a7a](https://github.com/ddclient/ddclient/commit/3c522a7aa235f63ae0439e5674e7406e20c90956)
+  * Minor improvements to `--help` output.
+    [#659](https://github.com/ddclient/ddclient/pull/659),
+    [#665](https://github.com/ddclient/ddclient/pull/665)
+  * Improved formatting of ddclient's version number.
+    [#639](https://github.com/ddclient/ddclient/pull/639)
+  * Updated sample systemd service unit file to improve logging in the systemd
+    journal.  [#669](https://github.com/ddclient/ddclient/pull/669)
+  * The second and subsequent lines in a multi-line log message now have a
+    different prefix to distinguish them from separate log messages.
+    [#676](https://github.com/ddclient/ddclient/pull/676)
+    [#719](https://github.com/ddclient/ddclient/pull/719)
+  * Log messages now include context, making it easier to troubleshoot issues.
+    [#725](https://github.com/ddclient/ddclient/pull/725)
+  * `emailonly`: New `protocol` option that simply emails you when your IP
+    address changes.  [#654](https://github.com/ddclient/ddclient/pull/654)
+  * `he.net`: Added support for updating Hurricane Electric records.
+    [#682](https://github.com/ddclient/ddclient/pull/682)
+  * `dyndns2`, `domeneshop`, `dnsmadeeasy`, `keysystems`: The `server` option
+    can now include `http://` or `https://` to control the use of TLS.  If
+    omitted, the value of the `ssl` option is used to determine the scheme.
+    [#703](https://github.com/ddclient/ddclient/pull/703)
+  * `ddns.fm`: New `protocol` option for updating [DDNS.FM](https://ddns.fm/)
+    records.  [#695](https://github.com/ddclient/ddclient/pull/695)
+  * `inwx`: New `protocol` option for updating [INWX](https://www.inwx.com/)
+    records.  [#690](https://github.com/ddclient/ddclient/pull/690)
+  * `domeneshop`: Add IPv6 support.
+    [#719](https://github.com/ddclient/ddclient/pull/719)
+  * `duckdns`: Multiple hosts with the same IP address are now updated together.
+    [#719](https://github.com/ddclient/ddclient/pull/719)
+  * `directnic`: Added support for updatng Directnic records.
+    [#726](https://github.com/ddclient/ddclient/pull/726)
+
+### Bug fixes
+
+  * Fixed numerous bugs in cache file (recap) handling.
+    [#740](https://github.com/ddclient/ddclient/pull/740)
+  * Fixed numerous bugs in command-line option and configuration file
+    processing.  [#733](https://github.com/ddclient/ddclient/pull/733)
+  * `noip`: Fixed failure to honor IP discovery settings in some circumstances.
+    [#591](https://github.com/ddclient/ddclient/pull/591)
+  * Fixed `--usev6` with providers that have not yet been updated to use the new
+    separate IPv4/IPv6 logic.
+    [ad854ab7](https://github.com/ddclient/ddclient/commit/ad854ab716922f5f25742421ebd4c27646b86619)
+  * HTTP redirects (301, 302) are now followed.
+    [#592](https://github.com/ddclient/ddclient/pull/592)
+  * `keysystems`: Fixed update URL.
+    [#629](https://github.com/ddclient/ddclient/pull/629)
+  * `dondominio`: Fixed response parsing.
+    [#646](https://github.com/ddclient/ddclient/pull/646)
+  * Fixed `--web-ssl-validate` and `--fw-ssl-validate` options, which were
+    ignored in some cases (defaulting to validate).
+    [#661](https://github.com/ddclient/ddclient/pull/661)
+  * Explicitly setting `--web-skip`, `--webv4-skip`, `--webv6-skip`,
+    `--fw-skip`, `--fwv4-skip`, and `--fwv6-skip` to the empty string now
+    disables any built-in default skip.  Before, setting to the empty string had
+    no effect.  [#662](https://github.com/ddclient/ddclient/pull/662)
+  * `--use=disabled` now works.
+    [#665](https://github.com/ddclient/ddclient/pull/665)
+  * `--retry` and `--daemon` are incompatible with each other; ddclient now
+    errors out if both are provided.
+    [#666](https://github.com/ddclient/ddclient/pull/666)
+  * `--usev4=cisco` and `--usev4=cisco-asa` now work.
+    [#664](https://github.com/ddclient/ddclient/pull/664)
+  * Fixed "Scalar value better written as" Perl warning.
+    [#667](https://github.com/ddclient/ddclient/pull/667)
+  * Fixed "Invalid Value for keyword 'wtime' = ''" warning.
+    [#734](https://github.com/ddclient/ddclient/pull/734)
+  * Fixed unnecessary repeated updates for some services.
+    [#670](https://github.com/ddclient/ddclient/pull/670)
+    [#732](https://github.com/ddclient/ddclient/pull/732)
+  * Fixed DNSExit provider when configured with a zone and non-identical
+    hostname.  [#674](https://github.com/ddclient/ddclient/pull/674)
+  * `infomaniak`: Fixed frequent forced updates after 25 days (`max-interval`).
+    [#691](https://github.com/ddclient/ddclient/pull/691)
+  * `infomaniak`: Fixed incorrect parsing of server response.
+    [#692](https://github.com/ddclient/ddclient/pull/692)
+  * `infomaniak`: Fixed incorrect handling of `nochg` responses.
+    [#723](https://github.com/ddclient/ddclient/pull/723)
+  * `regfishde`: Fixed IPv6 support.
+    [#691](https://github.com/ddclient/ddclient/pull/691)
+  * `easydns`: IPv4 and IPv6 addresses are now updated separately to be
+    consistent with the easyDNS documentation.
+    [#713](https://github.com/ddclient/ddclient/pull/713)
+  * `easydns`: Fixed parsing of result code from server response.
+    [#713](https://github.com/ddclient/ddclient/pull/713)
+  * `easydns`: Fixed successful updates treated as failed updates.
+    [#713](https://github.com/ddclient/ddclient/pull/713)
+  * Any IP addresses in an HTTP response's headers or in an HTTP error
+    response's body are now ignored when obtaining the IP address from a
+    web-based IP discovery service (`--usev4=webv4`, `--usev6=webv6`) or from a
+    router/firewall device.
+    [#719](https://github.com/ddclient/ddclient/pull/719)
+  * `yandex`: Errors are now retried.
+    [#719](https://github.com/ddclient/ddclient/pull/719)
+  * `gandi`: Fixed handling of error responses.
+    [#721](https://github.com/ddclient/ddclient/pull/721)
+  * `dyndns2`: Fixed handling of responses for multi-host updates.
+    [#728](https://github.com/ddclient/ddclient/pull/728)
+
+## 2023-11-23 v3.11.2
+
+### Bug fixes
+  * Fixed simultaneous IPv4 and IPv6 updates for provider duckdns
+  * Fixed caching issues for new providers when using the old 'use' config parameter
+
+## 2023-10-25 v3.11.1
+
+### Bug fixes
+  * Fixed simultaneous IPv4 and IPv6 updates for provider porkbun
+  * Removed @PACKAGE_VERSION@ placeholder in ddclient.in for now
+    to allow downstream to adopt the proper build process first.
+    See [here](https://github.com/ddclient/ddclient/issues/579) for the discussion.
+
+## 2023-10-21 v3.11.0
+This version is the same as v3.11.0_1 (except for the updated version number in the code).
+Refer to [v3.11 release plan discussions](https://github.com/ddclient/ddclient/issues/552) for the reasons.
+
+## 2023-10-15 v3.11.0_1
+
+### Breaking changes
+
+  * ddclient now requires curl. The Perl modules IO::Socket::IP and IO::Socket::SSL are no longer used.
+  * ddclient no longer ships any example files for init systems that use `/etc/init.d`.
+    This was done because those files where effectively unmaintained, untested by the developers and only updated by downstream distros.
+    If you where relying on those files, please copy them into your packaging.
+  * The defunct `dnsexit` protocol is removed (replaced by `dnsexit2`).
+
+### New features
+
+  * Introduced `usev4` and `usev6` for separate IPv4/IPv6 configuration. These will replace the legacy `use` eventually.
+  * Added support for moving secrets out of the configuration through environment variables
+  * Extended postscript mechanism
+  * sample-get-ip-from-fritzbox: Added environment variable to override hostname
+  * Warn about hosts where no IP could be determined - and skip the (bogus) update.
+
+### Provider updates:
+  * Added regfish
+  * Added domeneshop.no
+  * Added Mythic Beasts
+  * Added Porkbun
+  * Added Enom
+  * Added DigitalOcean
+  * Added Infomaniak
+  * Added DNSExit API v2
+  * Removed old DNSExit API
+  * Extended EasyDNS to support IPv6
+  * Extended duckdns to support IPv6
+
+### Bug fixes
+
+  * Fixed various issues with caching
+  * Fixed issues with Hetzner zones
+  * The OVH provider now ignores extra data returned
+  * Merge multiple configs for the same hostname instead of use the last
+
+## 2022-10-20 v3.10.0
+
+### New features
+
+  * Added support for domaindiscount24.com
+  * Added support for njal.la
+
+## 2022-05-15 v3.10.0_2
+
+### Bug fixes
+
+  * Fix version number being unable to parse
+
+## 2022-05-15 v3.10.0_1
+
+This release contains a total of over 360 commits according to GitHub.
+Many of them cleaned up and improved the code to make further maintenance easier.
+ddclient also went through a major maintainer change. More help is highly appreciated
+and for the time new features are unlikely to be implemented.
+This is a first release candidate to hopefully catch some more bugs before the final 3.10.0 release.
+Due to ddclient's nature talking to many cloud services, testing all of them is not easy
+and it is necessary to rely on the community to test all of them.
+
+### New features
+
+  * Added support for Cloudflare API tokens
   * Added support for OVH DynHost.
   * Added support for ClouDNS.
   * Added support for dinahosting.
@@ -74,10 +314,12 @@ repository history](https://github.com/ddclient/ddclient/commits/master).
   * The way ddclient chooses the default for the `use` option has changed.
     Rather than rely on the default, users should explicitly set the `use`
     option.
+    * The default `interval` changed from 1 minute to 5 minutes.
   * The `fw-banlocal` option is deprecated and no longer does anything.
   * The `if-skip` option is deprecated and no longer does anything.
   * The default server for the `dslreports1` protocol changed from
     `members.dyndns.org` to `www.dslreports.com`.
+  * Removed support for defunct dnsspark service
   * Removed support for defunct dtdns service
   * Removed support for defunct Hammernode service
 
